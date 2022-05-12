@@ -1,0 +1,8 @@
+/data/raw/
+/data/pandas/
+/data/20211009/
+/data/__pycache__
+data.ipynb
+/venv/
+.pyc
+__pycache__/
