@@ -32,6 +32,10 @@ def get_theta_verosity(row):
     second = row["seconds_diff"]
     return diff / second
 
+def get_angle_verosity(row):
+    diff = row["angle_diff_based"]
+    second = row["seconds_diff"]
+    return diff / second
 
 """15秒おきに20回刺激"""
 def get_stimulation(row):
