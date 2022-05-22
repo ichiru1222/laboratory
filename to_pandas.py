@@ -7,9 +7,9 @@ import pickle
 import re
 
 import pandas as pd
-from data.data_utils import get_dist_V, get_R, get_R_verosity, get_theta, get_theta_verosity
+from data.data_utils import get_dist_V, get_R, get_R_verosity, get_theta, get_theta_verosity, get_angle_verosity
 
-SP_NAME = "norpA"
+SP_NAME = "DGRP362"
 DIR_NAME = f"data/raw/{SP_NAME}/*.tsv"
 
 file_names = glob.glob(DIR_NAME)
@@ -35,6 +35,7 @@ for file in file_names:
     df["dist_v"] = df.apply(get_dist_V, axis=1)
     df["R_verosity"] = df.apply(get_R_verosity, axis=1)
     df["theta_verosity"] = df.apply(get_theta_verosity, axis=1)
+    df["angle_verosity"] = df.apply(get_angle_verosity, axis=1)
     df = df.dropna()
     
     # pickleとして保存

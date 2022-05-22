@@ -9,6 +9,7 @@ class Environment:
         self.nS = nS1 * nS2
         self.nA = len(self.actions)
         self.P = self.make_P()
+        self.P_angle = self.make_P_angle()
     
 
     def make_actions(self,action_range):
@@ -34,6 +35,20 @@ class Environment:
             return False
         if self.nS2 <= to_s2 or 0 > to_s2:
             return False
+        return True
+
+    def is_possible_action_angle(self, s1, s2, action):
+        """行動が可能か判定（angle）
+            s2 に角度が入る
+        """
+        to_s1 = s1
+        to_s2 = s2
+        to_s1 += action[0]
+        to_s2 += action[1]
+
+        if self.nS1 <= to_s1 or 0 > to_s1:
+            return False
+
         return True
 
     def to_scalar(self, s1, s2):
@@ -63,11 +78,35 @@ class Environment:
                     next_s1 = s1 + action[0]
                     next_s2 = s2 + action[1]
                     next_s = self.to_scalar(next_s1, next_s2)
+                    
                     P[s_idx][a_idx][next_s] += 1
 
         return P
 
+    def make_P_angle(self):
+        """状態遷移確率行列の作成
+        """
+        #Pの初期化
+        P = np.zeros((self.nS, self.nA, self.nS))
 
+        for s_idx in range(self.nS):
+            for a_idx in range(self.nA):
+                action = self.actions[a_idx]
+                s1, s2 = self.to_vector(s_idx)
+                if self.is_possible_action_angle(s1, s2, action):
+                    next_s1 = s1 + action[0]
+                    next_s2 = s2 + action[1]
+                    next_s = self.to_scalar(next_s1, next_s2)
+                    # 回転の処理
+                    while next_s < 0 or next_s >= self.nS:
+                        if next_s >= self.nS:
+                            next_s = next_s - self.nS
+                        if next_s < 0:
+                            next_s = next_s + self.nS
+                    
+                    P[s_idx][a_idx][next_s] += 1
+
+        return P
 
 
         
@@ -77,9 +116,12 @@ class Environment:
 if __name__ == "__main__":
     import numpy
     
-    env = Environment(11, 11, 4)
+    env = Environment(4, 3, 2)
     numpy.set_printoptions(threshold=numpy.inf)
-    print(env.actions)
+    # print(env.actions)
 
-    print(env.P)
+    # print(env.P[0])
+
+    # print(env.P_angle[-1])
+    print(np.all(env.P== env.P_angle))
 
