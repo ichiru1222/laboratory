@@ -37,11 +37,11 @@ def MuE(trajectories, nS: int):
 
     return MuE_m
 
-def MaxEntIRL(env, trajectories, n_iter: int, max_step, learning_rate: float):
+def MaxEntIRL(env, P, trajectories, n_iter: int, max_step, learning_rate: float):
     """MaxEntIRL 本体
     """
     # 状態遷移確率行列を環境から取得
-    P = env.P
+    P = P
 
     global muE # 必要？
 
@@ -69,9 +69,12 @@ def MaxEntIRL(env, trajectories, n_iter: int, max_step, learning_rate: float):
 
         # Note:N回のイテレーションの”N”は，軌跡の長さ
         for n in range(max_step):
-            Z_a = np.einsum("san, s, n -> sa", P, np.exp(R), Z_s) #nはnext_stateの意
+            # オーバーフロー対策
+            R_max = np.max(R)
+            Z_a = np.einsum("san, s, n -> sa", P, np.exp(R - R_max), Z_s) #nはnext_stateの意
             Z_s = np.sum(Z_a, axis = 1) #Z_sの初期化位置は"ここ"
 
+        # NOTE ここはソフトマックス関数の形になっているためオーバーフローが起こる
         policy = np.einsum("sa, s -> sa", Z_a, 1/Z_s)#各状態における行動選択確率：：：これがsoft_Q_policy
 
         """Forward pass"""
@@ -93,12 +96,16 @@ def MaxEntIRL(env, trajectories, n_iter: int, max_step, learning_rate: float):
         print(norm_grad)
 
         theta += learning_rate * grad #最大化問題なので勾配降下が勾配上昇（勾配を加える）になっていることに注意
-        print("theta")
-        print(theta)
-        print("############")
+        # print("theta")
+        # print(theta)
+        # print("############")
+        # # print("R")
+        # # print(R)
+        # print("policy")
+        # print(policy)
     
     print("MaxEntIRL ended.")
-    return R, policy, theta
+    return R, policy, theta, Z_s
 
 if __name__ == "__main__":
     
@@ -111,5 +118,5 @@ if __name__ == "__main__":
 
     trajectories = np.array([[0, 2, 4], [1, 2, 4], [8, 2, 4]])
 
-    R = MaxEntIRL(env, trajectories, n_iter=50, max_step=len(trajectories[0]), learning_rate=0.01)
-    print(R)
+    R, policy, theta, Z_s = MaxEntIRL(env, trajectories, n_iter=50, max_step=len(trajectories[0]), learning_rate=0.01)
+    print(R, Z_s)

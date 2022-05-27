@@ -1,8 +1,13 @@
 /data/raw/
 /data/pandas/
 /data/20211009/
+/data/maxent_traj
 /data/__pycache__
 data.ipynb
 /venv/
 .pyc
 __pycache__/
+.pkl
+/result/
+/plot/
+/scatter/
